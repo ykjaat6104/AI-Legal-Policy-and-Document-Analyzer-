@@ -1,0 +1,21 @@
+# sensitive data
+.env
+
+# databases
+chroma_db/
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+
+# logs
+*.log
+
+# system
+.DS_Store
+Thumbs.db

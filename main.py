@@ -3,12 +3,12 @@ import sys
 import os
 
 # Add project root to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ai_legal_analyzer.utils.config import Config
-from ai_legal_analyzer.ingestion.splitter import LegalClauseSplitter
-from ai_legal_analyzer.retrieval.vector_store import VectorStoreManager
-from ai_legal_analyzer.workflows.graph import create_workflow
+from src.ai_legal_analyzer.utils.project_config import Config
+from src.ai_legal_analyzer.ingestion.legal_splitter import LegalClauseSplitter
+from src.ai_legal_analyzer.retrieval.vector_storage import VectorStoreManager
+from src.ai_legal_analyzer.workflows.workflow_graph import create_workflow
 
 def ingest_file(file_path: str):
     """

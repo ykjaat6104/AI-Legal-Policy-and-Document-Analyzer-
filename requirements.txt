@@ -6,3 +6,8 @@ chromadb
 pydantic
 python-dotenv
 tiktoken
+fastapi
+uvicorn[standard]
+python-multipart
+pypdf
+python-docx
