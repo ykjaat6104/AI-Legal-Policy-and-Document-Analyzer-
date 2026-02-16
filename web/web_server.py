@@ -48,9 +48,9 @@ async def handle_ingestion(file: UploadFile = File(...)):
         splitter = LegalClauseSplitter()
         docs = splitter.create_documents([text], metadatas=[{"source": file.filename}])
         
-        # store in chroma
+        # store in chroma (clear old ones for fresh demo)
         vs_manager = VectorStoreManager()
-        ids = vs_manager.add_documents(docs)
+        ids = vs_manager.add_documents(docs, clear_existing=True)
         
         return {
             "status": "success",
