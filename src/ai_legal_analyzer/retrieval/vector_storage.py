@@ -47,10 +47,25 @@ class VectorStoreManager:
             settings=Settings(anonymized_telemetry=False, allow_reset=True)
         )
     
-    def add_documents(self, documents: List[Document]):
-        # add docs to store
+    def add_documents(self, documents: List[Document], clear_existing: bool = True):
+        # add docs to store, clear old ones for demo
         if not documents: return []
+        if clear_existing:
+            self.clear_all()
         return self.vector_store.add_documents(documents)
+    
+    def clear_all(self):
+        # wipe the collection for a fresh start
+        try:
+            self.vector_store.delete_collection()
+            # re-init after delete
+            self.vector_store = Chroma(
+                client=self.vector_store._client,
+                embedding_function=self.embeddings,
+                collection_name="legal_clauses"
+            )
+        except Exception as e:
+            logger.error(f"clear failed: {e}")
         
     def search(self, query: str, k: int = 5):
         # similarity search
