@@ -1,4 +1,12 @@
 import unittest
+import sys
+import os
+from pathlib import Path
+
+# setup path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from src.ai_legal_analyzer.ingestion.legal_splitter import LegalClauseSplitter
 
 class TestLegalClauseSplitter(unittest.TestCase):
@@ -24,8 +32,8 @@ The term of this agreement is 1 year.
         
         non_empty_docs = [d for d in docs if d.page_content.strip()]
         self.assertEqual(len(non_empty_docs), 2)
-        self.assertIn("1.1 Definitions", non_empty_docs[0].metadata["clause_id"])
-        self.assertIn("1.2 Term", non_empty_docs[1].metadata["clause_id"])
+        self.assertEqual(non_empty_docs[0].metadata["clause_id"], "1.1")
+        self.assertEqual(non_empty_docs[1].metadata["clause_id"], "1.2")
 
     def test_split_articles(self):
         text = """
