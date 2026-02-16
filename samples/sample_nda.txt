@@ -1,0 +1,18 @@
+NON-DISCLOSURE AGREEMENT
+
+This Agreement is made between TechCorp Solutions ("Discloser") and Freelance Services LLC ("Recipient").
+
+1. PURPOSE
+The Recipient is being hired to provide data analysis services. 
+
+2. CONFIDENTIAL INFORMATION
+Confidential Information includes all technical data, trade secrets, and business plans.
+
+3. RESTRICTIONS ON USE
+The Recipient shall not use the Confidential Information for any purpose other than the performance of the Services. 
+
+4. AI USAGE
+The Recipient is strictly prohibited from inputting any Confidential Information into external AI models or Large Language Models (LLMs) including but not limited to OpenAI's ChatGPT.
+
+5. TERMINATION
+This agreement can be terminated by either party with 30 days written notice.
