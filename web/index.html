@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Legal Document Analyzer</title>
-    <link rel="stylesheet" href="static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -20,7 +20,7 @@
                 </svg>
                 <h1>AI Legal Document Analyzer</h1>
             </div>
-            <p class="subtitle">Intelligent Contract Analysis with RAG & Risk Scoring</p>
+            <p class="subtitle">Intelligent Contract Analysis with RAG &amp; Risk Scoring</p>
         </header>
 
         <main class="main-content">
@@ -41,7 +41,7 @@
                             <path d="M7 18C5.17107 18.4117 4 19.0443 4 19.7537C4 20.9943 7.58172 22 12 22C16.4183 22 20 20.9943 20 19.7537C20 19.0443 18.8289 18.4117 17 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             <path d="M12 15V3M12 3L16 7M12 3L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
-                        <p class="upload-text">Drag & drop your contract here or <span class="upload-link">browse files</span></p>
+                        <p class="upload-text">Drag &amp; drop your contract here or <span class="upload-link">browse files</span></p>
                         <p class="upload-hint">Supports TXT, PDF, DOCX formats</p>
                     </div>
                 </div>
@@ -64,9 +64,9 @@
                     Analyze Contract
                 </h2>
                 <div class="query-input-group">
-                    <textarea 
-                        id="queryInput" 
-                        placeholder="Ask a question about the contract... (e.g., 'What is the termination notice period?', 'Identify high-risk clauses', 'Summarize indemnification obligations')"
+                    <textarea
+                        id="queryInput"
+                        placeholder="Ask a question about the contract… e.g. 'What is the termination notice period?', 'Identify high-risk clauses', 'Summarize indemnification obligations'"
                         rows="3"
                     ></textarea>
                     <button class="btn btn-primary" id="analyzeBtn">
@@ -79,16 +79,18 @@
                 <div class="quick-queries">
                     <p class="quick-queries-label">Quick queries:</p>
                     <div class="quick-query-buttons">
-                        <button class="btn-quick-query" data-query="What are the high-risk clauses in this contract?">High-Risk Clauses</button>
-                        <button class="btn-quick-query" data-query="What is the termination notice period?">Termination Period</button>
-                        <button class="btn-quick-query" data-query="Summarize the indemnification obligations">Indemnification</button>
-                        <button class="btn-quick-query" data-query="What are the liability limitations?">Liability Limits</button>
+                        <button class="btn-quick-query" data-query="What are the high-risk clauses in this contract?">🔴 High-Risk Clauses</button>
+                        <button class="btn-quick-query" data-query="What is the termination notice period?">📋 Termination Period</button>
+                        <button class="btn-quick-query" data-query="Summarize the indemnification obligations">⚖️ Indemnification</button>
+                        <button class="btn-quick-query" data-query="What are the liability limitations?">🛡️ Liability Limits</button>
+                        <button class="btn-quick-query" data-query="Are there any auto-renewal clauses?">🔄 Auto-Renewal</button>
+                        <button class="btn-quick-query" data-query="What data protection measures are required?">🔒 Data Protection</button>
                     </div>
                 </div>
             </section>
 
             <!-- Results Section -->
-            <section class="card results-section" id="resultsSection" style="display: none;">
+            <section class="card results-section" id="resultsSection" style="display:none;">
                 <h2 class="section-title">
                     <svg class="section-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -96,21 +98,22 @@
                     </svg>
                     Analysis Results
                 </h2>
+                <div id="riskSummary" class="risk-summary" style="display:none;"></div>
                 <div id="resultsContent" class="results-content"></div>
             </section>
         </main>
 
         <footer class="footer">
-            <p>Powered by LangChain, LangGraph, Google Gemini & ChromaDB</p>
+            <p>Powered by LangChain · LangGraph · Google Gemini · ChromaDB</p>
         </footer>
     </div>
 
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p class="loading-text">Processing...</p>
+        <p class="loading-text" id="loadingText">Processing…</p>
     </div>
 
-    <script src="static/js/app.js"></script>
+    <script src="/static/js/app.js"></script>
 </body>
 </html>
