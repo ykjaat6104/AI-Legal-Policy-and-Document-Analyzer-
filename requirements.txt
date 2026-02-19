@@ -1,6 +1,7 @@
 langchain
-langchain-google-genai
+langchain-google-genai>=4.0.0
 langchain-chroma
+langchain-text-splitters
 langgraph
 chromadb
 pydantic
