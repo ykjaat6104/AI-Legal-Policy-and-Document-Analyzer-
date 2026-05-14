@@ -1,3 +1,5 @@
+fastapi
+uvicorn[standard]
 langchain
 langchain-google-genai>=4.0.0
 langchain-chroma
@@ -7,8 +9,6 @@ chromadb
 pydantic
 python-dotenv
 tiktoken
-fastapi
-uvicorn[standard]
 python-multipart
 pypdf
 python-docx
