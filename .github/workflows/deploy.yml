@@ -1,0 +1,21 @@
+name: Sync to Hugging Face Hub
+
+on:
+  push:
+    branches: [main, master] # Adjust based on your default branch name
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://ykjaat6104:$HF_TOKEN@huggingface.co/spaces/ykjaat6104/AI-Legal-Policy-and-Document-Analyzer
+          git push --force hf HEAD:refs/heads/main
