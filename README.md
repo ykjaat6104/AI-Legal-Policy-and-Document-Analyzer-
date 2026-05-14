@@ -2,11 +2,10 @@
 title: AI Legal Analyzer
 emoji: ⚖️
 colorFrom: blue
-colorTo: gnu
+colorTo: indigo
 sdk: docker
 app_port: 7860
 pinned: false
-license: mit
 ---
 
 # AI Legal Policy & Document Analyzer
