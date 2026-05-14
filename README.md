@@ -1,3 +1,14 @@
+---
+title: AI Legal Analyzer
+emoji: ⚖️
+colorFrom: blue
+colorTo: gnu
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # AI Legal Policy & Document Analyzer
 
 A powerful web application for analyzing legal documents using advanced AI technologies. This tool allows users to upload legal documents (PDF, DOCX, TXT) and perform intelligent queries to extract insights, assess risks, and generate reports.
