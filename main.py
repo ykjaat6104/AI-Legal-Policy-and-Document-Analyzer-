@@ -1,88 +1,116 @@
-import argparse
-import sys
 import os
-import asyncio
+import sys
+import traceback
+from pathlib import Path
 
-# Ensure project root is in path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
 
-from src.utils.project_config import Config
+# Ensure project root is in path.
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
+from src.ingestion.ingestion_loader import DocumentLoader
 from src.ingestion.legal_splitter import LegalClauseSplitter
 from src.retrieval.vector_storage import VectorStoreManager
+from src.utils.project_config import Config
 from src.workflows.workflow_graph import create_workflow
 
+app = FastAPI(title="AI Legal Document Analyzer", version="1.0.0")
 
-async def ingest_file(file_path: str):
-    """Ingest a legal document into the vector store."""
-    print(f"[INFO] Reading file: {file_path}")
+# Serve the frontend assets used by the static UI.
+app.mount("/static", StaticFiles(directory="web/static"), name="static")
+
+
+class QueryRequest(BaseModel):
+    query: str
+
+
+@app.get("/", response_class=HTMLResponse)
+async def serve_home():
+    """Serve the main UI."""
+    html_path = project_root / "web" / "index.html"
+    with open(html_path, "r", encoding="utf-8") as file:
+        return file.read()
+
+
+@app.post("/api/ingest")
+async def handle_ingestion(file: UploadFile = File(...)):
+    """Process and ingest a legal document (PDF, DOCX, TXT)."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            text = f.read()
-    except Exception as e:
-        print(f"[ERROR] Failed to read file: {e}")
-        return
+        Config.validate_api_key()
 
-    print("[INFO] Splitting into clauses…")
-    splitter = LegalClauseSplitter()
-    docs = splitter.create_documents([text], metadatas=[{"source": file_path}])
-    print(f"[INFO] Generated {len(docs)} clauses.")
+        content = await file.read()
+        try:
+            text = DocumentLoader.load(content, file.filename)
+        except ValueError as error:
+            return JSONResponse({"status": "error", "detail": str(error)}, status_code=400)
 
-    print("[INFO] Storing in Vector DB…")
-    vs_manager = VectorStoreManager()
-    ids = vs_manager.add_documents(docs)
-    print(f"[INFO] Successfully stored {len(ids)} clauses. Done!")
+        splitter = LegalClauseSplitter()
+        docs = splitter.create_documents([text], metadatas=[{"source": file.filename}])
 
+        vs_manager = VectorStoreManager()
+        ids = vs_manager.add_documents(docs, clear_existing=True)
 
-async def run_analysis(query: str):
-    """Run the full RAG analysis workflow."""
-    print(f"[INFO] Analyzing query: '{query}'")
-    workflow = create_workflow()
+        return {
+            "status": "success",
+            "num_clauses": len(ids),
+            "filename": file.filename,
+            "message": f"Successfully processed {len(ids)} clauses from '{file.filename}'",
+        }
 
-    initial_state = {
-        "query": query,
-        "documents": [],
-        "risk_analysis": [],
-        "final_answer": "",
-        "overall_report": {}
-    }
-
-    result = await workflow.ainvoke(initial_state)
-
-    print("\n" + "=" * 60)
-    print("  ANALYSIS RESULT")
-    print("=" * 60)
-    print(result.get("final_answer", "No answer generated."))
-    print("=" * 60 + "\n")
+    except Exception as error:
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(error))
 
 
-async def main():
-    parser = argparse.ArgumentParser(
-        description="AI Legal Document Analyzer — CLI",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  python main.py ingest samples/saas_contract.txt
-  python main.py analyze "What are the termination conditions?"
-  python main.py analyze "What is the liability cap?"
-        """
-    )
-    subparsers = parser.add_subparsers(dest="command", help="Command to run")
+@app.post("/api/analyze")
+async def handle_analysis(request: QueryRequest):
+    """Run RAG + risk analysis workflow on the ingested document."""
+    try:
+        workflow = create_workflow()
+        state = {
+            "query": request.query,
+            "documents": [],
+            "risk_analysis": [],
+            "final_answer": "",
+            "overall_report": {},
+        }
 
-    ingest_parser = subparsers.add_parser("ingest", help="Ingest a legal document")
-    ingest_parser.add_argument("file", help="Path to TXT/PDF/DOCX file")
+        result = await workflow.ainvoke(state)
 
-    analyze_parser = subparsers.add_parser("analyze", help="Analyze a query against ingested documents")
-    analyze_parser.add_argument("query", help="Legal question or analysis request")
+        return {
+            "status": "success",
+            "answer": result.get("final_answer", "No answer generated."),
+            "overall_report": result.get("overall_report", {}),
+            "num_clauses_analyzed": len(result.get("risk_analysis", [])),
+        }
 
-    args = parser.parse_args()
+    except Exception as error:
+        traceback.print_exc()
+        error_message = str(error)
 
-    if args.command == "ingest":
-        await ingest_file(args.file)
-    elif args.command == "analyze":
-        await run_analysis(args.query)
-    else:
-        parser.print_help()
+        # Handle quota errors gracefully.
+        if "429" in error_message or "quota" in error_message.lower():
+            return JSONResponse(
+                {
+                    "status": "success",
+                    "answer": (
+                        "⚠️ **API Quota Exceeded**\n\n"
+                        "The free-tier Google Gemini API limit has been reached (typically 20 requests/day or 15 RPM).\n"
+                        "Please wait a few minutes or until the next day and try again.\n\n"
+                        "To increase limits, upgrade to a paid Google AI Studio plan."
+                    ),
+                    "num_clauses_analyzed": 0,
+                }
+            )
+
+        return JSONResponse({"status": "error", "detail": error_message}, status_code=500)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+@app.get("/api/health")
+async def health_check():
+    """Health check endpoint."""
+    return {"status": "ok", "version": "1.0.0"}
